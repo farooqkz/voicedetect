@@ -1,7 +1,9 @@
 use rand::rngs::SmallRng;
 use crate::neuron::Neuron;
 
-
+fn error(actual: f32, predicted: f32) -> f32 {
+    (actual - predicted).exp2()
+}
 
 pub struct Layer {
     pub neurons: Vec<Neuron>
@@ -9,25 +11,21 @@ pub struct Layer {
 
 impl Layer {
     pub fn new(neurons: usize, data_n: usize, rng: &mut SmallRng) -> Self {
-        let mut n: Vec<Neuron> = vec![];
-        for _ in 0..neurons {
-            n.push(Neuron::new(data_n, rng));
-        }
         Layer {
-            neurons: n,
+            neurons: (0..neurons).map(Neuron::new(data_n, rng)).collect(),
         }
     }
 
     pub fn feed(&self, data: Vec<f32>) -> Vec<f32> {
         assert!(self.neurons[0].weights.len() == data.len());
-        let mut sums: Vec<f32> = vec![];
-        for neuron in self.neurons.iter() {
-            sums.push(neuron.feed(data.clone()));
-        }
-        sums
+        self.neurons.iter().map(|n| n.feed(data.clone())).collect()
     }
 
-    pub fn get_derivative(self, data: Vec<f32>) -> f32 {
-        0.0
+    pub fn update(&self, actual: Vec<f32>) {
+        assert!(self.neurons[0].weights.len() == actual.len());
+        for neuron in self.neurons.iter() {
+            let predicted = neuron.feed(actual.clone());
+            
+        }
     }
 }
